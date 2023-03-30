@@ -24,7 +24,7 @@ class Level:
                 if cell == 'P':
                     x = col_index * tile_size
                     y = row_index * tile_size
-                    player_sprite = Player((x,y))
+                    player_sprite = Player((x,y),self.display_surface)
                     self.player.add(player_sprite)
 
     def scroll_x(self):
