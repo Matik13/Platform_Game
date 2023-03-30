@@ -12,10 +12,15 @@ class Player(pygame.sprite.Sprite):
         self.direction = pygame.math.Vector2(0,0)
         self.speed = 8
         self.gravity = 0.8
-        self.jump_speed = -16
+        self.jump_speed = -20
         #player status
         self.status = 'idle'
         self.facing_right = True
+        self.on_ground = False
+        self.on_ceiling = False
+        self.on_left = False
+        self.on_right = False
+
     def import_character_assets(self):
         character_path = '../graphics/characters/warrior/'
         self.animations = {'idle':[],'run':[],'jump':[],'fall':[]}
@@ -33,9 +38,25 @@ class Player(pygame.sprite.Sprite):
         if self.facing_right:
             self.image = image
         else:
-            flipped_image = pygame.transform.flip(image,True,False)
+            flipped_image = pygame.transform.flip(image,True,False) #notatka: flip(powierzchnia,obrócenie względem osi x,obrócenie względem osi y)
             self.image = flipped_image
-#notatka: flip(powierzchnia,obrócenie względem osi x,obrócenie względem osi y)
+        #set the rect
+        if self.on_ground and self.on_right:#dół prawo
+            self.rect = self.image.get_rect(bottomright = self.rect.bottomright)
+        elif self.on_ground and self.on_left:#dół lewo
+            self.rect = self.image.get_rect(bottomleft = self.rect.bottomleft)
+        elif self.on_ground:#dół
+            self.rect = self.image.get_rect(midbottom = self.rect.midbottom)
+
+        elif self.on_ceiling and self.on_right:#góra prawo
+            self.rect = self.image.get_rect(topright = self.rect.topright)
+        elif self.on_ceiling and self.on_left:#góra lewo
+            self.rect = self.image.get_rect(topleft = self.rect.topleft)
+        elif self.on_ceiling:#góra
+            self.rect = self.image.get_rect(midtop = self.rect.midtop)
+
+        else:#środek
+            self.rect = self.image.get_rect(center = self.rect.center)
 
     def get_input(self):
         keys = pygame.key.get_pressed()
@@ -49,15 +70,15 @@ class Player(pygame.sprite.Sprite):
         else:
             self.direction.x = 0
 
-        if keys[pygame.K_w]:
+        if keys[pygame.K_w] and self.on_ground:
             self.jump()
-        if keys[pygame.K_SPACE]:
+        if keys[pygame.K_SPACE] and self.on_ground:
             self.jump()
 
     def get_status(self):
         if self.direction.y < 0:
             self.status = 'jump'
-        elif self.direction.y > 0:
+        elif self.direction.y > 0: #można zmienić na 1(większe niż grwitacja) jeśli podczas stania w miejscu widać animacje spadania
             self.status = 'fall'
         else:
             if self.direction.x != 0:
