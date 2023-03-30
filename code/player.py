@@ -15,30 +15,37 @@ class Player(pygame.sprite.Sprite):
         self.jump_speed = -16
         #player status
         self.status = 'idle'
-
+        self.facing_right = True
     def import_character_assets(self):
-        character_path = '../graphics/character/'
+        character_path = '../graphics/characters/warrior/'
         self.animations = {'idle':[],'run':[],'jump':[],'fall':[]}
 
         for animation in self.animations.keys():
             full_path = character_path + animation
             self.animations[animation] = import_folder(full_path)
-
     def animate(self):
         animation = self.animations[self.status]
         #loop over frame index
         self.frame_index += self.animation_speed
         if self.frame_index >= len(animation):
             self.frame_index = 0
+        image = animation[int(self.frame_index)]
+        if self.facing_right:
+            self.image = image
+        else:
+            flipped_image = pygame.transform.flip(image,True,False)
+            self.image = flipped_image
+#notatka: flip(powierzchnia,obrócenie względem osi x,obrócenie względem osi y)
 
-        self.image = animation[int(self.frame_index)]
     def get_input(self):
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_d]:
             self.direction.x = 1
+            self.facing_right = True
         elif keys[pygame.K_a]:
             self.direction.x = -1
+            self.facing_right = False
         else:
             self.direction.x = 0
 
